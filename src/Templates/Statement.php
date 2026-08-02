@@ -2,7 +2,7 @@
 /**
  * Statement of account template.
  *
- * @package   SugarMill\TextPdf
+ * @package   Sugar\TextPdf
  * @copyright Copyright (c) 2026, ArrayPress Limited
  * @license   GPL-2.0-or-later
  * @since     1.0.0
@@ -10,9 +10,9 @@
 
 declare( strict_types=1 );
 
-namespace SugarMill\TextPdf\Templates;
+namespace Sugar\TextPdf\Templates;
 
-use SugarMill\TextPdf\{Align, Color, Document, Font, Orientation, PageSize, Table};
+use Sugar\TextPdf\{Align, Color, Document, Font, Orientation, PageSize, Table};
 
 /**
  * Class Statement

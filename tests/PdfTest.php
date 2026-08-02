@@ -6,7 +6,7 @@
  * viewer and fails in another almost always has a wrong xref offset, so
  * those are verified against the actual bytes rather than eyeballed.
  *
- * @package   SugarMill\TextPdf
+ * @package   Sugar\TextPdf
  * @copyright Copyright (c) 2026, ArrayPress Limited
  * @license   GPL-2.0-or-later
  * @since     1.0.0
@@ -14,12 +14,12 @@
 
 declare( strict_types=1 );
 
-namespace SugarMill\TextPdf\Tests;
+namespace Sugar\TextPdf\Tests;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use SugarMill\TextPdf\{Align, Color, Document, Font, Orientation, PageSize, Svg, Table};
-use SugarMill\TextPdf\Templates\{Branding, Invoice, Language, LineItem, Party, Receipt, Statement, Translations, VatLine, VatTreatment};
+use Sugar\TextPdf\{Align, Color, Document, Font, Orientation, PageSize, Svg, Table};
+use Sugar\TextPdf\Templates\{Branding, Invoice, Language, LineItem, Party, Receipt, Statement, Translations, VatLine, VatTreatment};
 
 final class PdfTest extends TestCase {
 
@@ -72,7 +72,7 @@ final class PdfTest extends TestCase {
 
 		$this->assertStringContainsString( '/Title (Invoice 42)', $pdf );
 		$this->assertStringContainsString( '/Author (Acme)', $pdf );
-		$this->assertStringContainsString( '/Producer (sugarmill/text-pdf)', $pdf );
+		$this->assertStringContainsString( '/Producer (sugarcommerce/text-pdf)', $pdf );
 	}
 
 	/* ─── Page sizes ────────────────────────────────────────────────── */
@@ -752,7 +752,7 @@ final class PdfTest extends TestCase {
 
 	public function test_languages_satisfy_the_translator_contract(): void {
 		foreach ( Language::cases() as $language ) {
-			$this->assertInstanceOf( \SugarMill\TextPdf\Templates\Translator::class, $language );
+			$this->assertInstanceOf( \Sugar\TextPdf\Templates\Translator::class, $language );
 		}
 	}
 

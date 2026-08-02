@@ -1,10 +1,10 @@
 {
-  "name": "sugarmill/text-pdf",
+  "name": "sugarcommerce/text-pdf",
   "version": "1.0.0",
   "description": "PDF generation with no dependencies. Invoices, statements and receipts with tables, vector SVG logos, multi-page flow, EU VAT treatments including reverse charge, and 11 languages. Injection-safe.",
   "type": "library",
   "license": "GPL-2.0-or-later",
-  "homepage": "https://github.com/sugarmill/text-pdf",
+  "homepage": "https://github.com/sugarcommerce/text-pdf",
   "authors": [
     {
       "name": "David Sherlock",
@@ -32,12 +32,12 @@
   },
   "autoload": {
     "psr-4": {
-      "SugarMill\\TextPdf\\": "src/"
+      "Sugar\\TextPdf\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "SugarMill\\TextPdf\\Tests\\": "tests/"
+      "Sugar\\TextPdf\\Tests\\": "tests/"
     }
   },
   "scripts": {
@@ -51,7 +51,7 @@
   "minimum-stability": "stable",
   "prefer-stable": true,
   "support": {
-    "issues": "https://github.com/sugarmill/text-pdf/issues",
-    "source": "https://github.com/sugarmill/text-pdf"
+    "issues": "https://github.com/sugarcommerce/text-pdf/issues",
+    "source": "https://github.com/sugarcommerce/text-pdf"
   }
 }

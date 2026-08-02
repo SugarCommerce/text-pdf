@@ -6,7 +6,7 @@ declare( strict_types=1 );
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use SugarMill\TextPdf\Templates\{Invoice, Branding, Party, LineItem, VatTreatment, VatLine, Language};
+use Sugar\TextPdf\Templates\{Invoice, Branding, Party, LineItem, VatTreatment, VatLine, Language};
 
 $mark = 'M50,4 C26,4 8,18 8,38 C8,56 22,64 44,70 C60,74 66,78 66,86 '
       . 'C66,94 58,98 48,98 C34,98 22,92 12,82 L12,96 C24,104 38,108 50,108 '

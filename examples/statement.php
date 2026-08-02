@@ -7,7 +7,7 @@ declare( strict_types=1 );
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use SugarMill\TextPdf\{Document, Table, Font, Color, Align, PageSize, Orientation};
+use Sugar\TextPdf\{Document, Table, Font, Color, Align, PageSize, Orientation};
 
 $brand = Color::hex( '#0f766e' );
 $muted = Color::grey( 110 );
