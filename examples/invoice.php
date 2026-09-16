@@ -6,7 +6,7 @@ declare( strict_types=1 );
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use Sugar\TextPdf\{Document, Table, Font, Color, Align, PageSize};
+use SugarCommerce\TextPdf\{Document, Table, Font, Color, Align, PageSize};
 
 $brand = Color::hex( '#0f766e' );
 $muted = Color::grey( 110 );

@@ -2,7 +2,7 @@
 /**
  * Label/value row normalisation.
  *
- * @package   Sugar\TextPdf
+ * @package   SugarCommerce\TextPdf
  * @copyright Copyright (c) 2026, ArrayPress Limited
  * @license   GPL-2.0-or-later
  * @since     1.0.0
@@ -10,14 +10,14 @@
 
 declare( strict_types=1 );
 
-namespace Sugar\TextPdf\Tests;
+namespace SugarCommerce\TextPdf\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Sugar\TextPdf\Templates\Branding;
-use Sugar\TextPdf\Templates\Invoice;
-use Sugar\TextPdf\Templates\LineItem;
-use Sugar\TextPdf\Templates\Party;
-use Sugar\TextPdf\Templates\Rows;
+use SugarCommerce\TextPdf\Templates\Branding;
+use SugarCommerce\TextPdf\Templates\Invoice;
+use SugarCommerce\TextPdf\Templates\LineItem;
+use SugarCommerce\TextPdf\Templates\Party;
+use SugarCommerce\TextPdf\Templates\Rows;
 
 /**
  * A totals block written as a list of pairs used to iterate as

@@ -2,7 +2,7 @@
 /**
  * Untrusted content reaching a PDF.
  *
- * @package   Sugar\TextPdf
+ * @package   SugarCommerce\TextPdf
  * @copyright Copyright (c) 2026, ArrayPress Limited
  * @license   GPL-2.0-or-later
  * @since     1.0.0
@@ -10,13 +10,13 @@
 
 declare( strict_types=1 );
 
-namespace Sugar\TextPdf\Tests;
+namespace SugarCommerce\TextPdf\Tests;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Sugar\TextPdf\Color;
-use Sugar\TextPdf\Document;
-use Sugar\TextPdf\Svg;
+use SugarCommerce\TextPdf\Color;
+use SugarCommerce\TextPdf\Document;
+use SugarCommerce\TextPdf\Svg;
 
 /**
  * An invoice is built from customer-supplied names, addresses and product

@@ -6,7 +6,7 @@
  * viewer and fails in another almost always has a wrong xref offset, so
  * those are verified against the actual bytes rather than eyeballed.
  *
- * @package   Sugar\TextPdf
+ * @package   SugarCommerce\TextPdf
  * @copyright Copyright (c) 2026, ArrayPress Limited
  * @license   GPL-2.0-or-later
  * @since     1.0.0
@@ -14,12 +14,12 @@
 
 declare( strict_types=1 );
 
-namespace Sugar\TextPdf\Tests;
+namespace SugarCommerce\TextPdf\Tests;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Sugar\TextPdf\{Align, Color, Document, Font, Orientation, PageSize, Svg, Table};
-use Sugar\TextPdf\Templates\{Branding, Invoice, Language, LineItem, Party, Receipt, Statement, Translations, VatLine, VatTreatment};
+use SugarCommerce\TextPdf\{Align, Color, Document, Font, Orientation, PageSize, Svg, Table};
+use SugarCommerce\TextPdf\Templates\{Branding, Invoice, Language, LineItem, Party, Receipt, Statement, Translations, VatLine, VatTreatment};
 
 final class PdfTest extends TestCase {
 
@@ -752,7 +752,7 @@ final class PdfTest extends TestCase {
 
 	public function test_languages_satisfy_the_translator_contract(): void {
 		foreach ( Language::cases() as $language ) {
-			$this->assertInstanceOf( \Sugar\TextPdf\Templates\Translator::class, $language );
+			$this->assertInstanceOf( \SugarCommerce\TextPdf\Templates\Translator::class, $language );
 		}
 	}
 

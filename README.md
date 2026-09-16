@@ -32,7 +32,7 @@ composer require sugarcommerce/text-pdf
 ## A document from scratch
 
 ```php
-use Sugar\TextPdf\{Document, Font, Color, PageSize};
+use SugarCommerce\TextPdf\{Document, Font, Color, PageSize};
 
 $pdf = new Document( size: PageSize::A4, margin: 56.0 );
 
@@ -83,7 +83,7 @@ $pdf->on_each_page( function ( Document $pdf, int $page ): void {
 ### Tables
 
 ```php
-use Sugar\TextPdf\{Table, Align};
+use SugarCommerce\TextPdf\{Table, Align};
 
 ( new Table( [ 'Date', 'Description', 'Amount' ] ) )
     ->widths( [ 0.2, 0.6, 0.2 ] )
@@ -98,7 +98,7 @@ Headers repeat on every page the table spills onto — which is the part that is
 ### Logos
 
 ```php
-use Sugar\TextPdf\Svg;
+use SugarCommerce\TextPdf\Svg;
 
 $path = Svg::to_pdf_path( $svg_d_attribute, scale: 0.4, height: 100.0 );
 $pdf->svg_path( $path, $pdf->left(), $pdf->cursor() - 40 );
@@ -111,7 +111,7 @@ Takes the `d` attribute of an SVG `<path>`. Supports `M L H V C S Q T Z`, absolu
 The reason this package exists. Fill in a struct, get a document.
 
 ```php
-use Sugar\TextPdf\Templates\{Invoice, Branding, Party, LineItem};
+use SugarCommerce\TextPdf\Templates\{Invoice, Branding, Party, LineItem};
 
 $invoice = new Invoice(
     branding: new Branding(
@@ -144,7 +144,7 @@ Documents are monochrome by default. It is the look that ages best, it photocopi
 ## VAT
 
 ```php
-use Sugar\TextPdf\Templates\{VatTreatment, VatLine};
+use SugarCommerce\TextPdf\Templates\{VatTreatment, VatLine};
 
 new Invoice(
     // …
@@ -173,7 +173,7 @@ That last one is worth calling: it checks the things §14 UStG requires — both
 ## Languages
 
 ```php
-use Sugar\TextPdf\Templates\Language;
+use SugarCommerce\TextPdf\Templates\Language;
 
 new Invoice( /* … */, translator: Language::German );
 Language::from_locale( 'de_DE' );
@@ -186,7 +186,7 @@ The list stops there for a concrete reason: the base-14 PDF fonts are WinAnsi-en
 For any other language, or to use your framework's translations:
 
 ```php
-use Sugar\TextPdf\Templates\Translations;
+use SugarCommerce\TextPdf\Templates\Translations;
 
 new Invoice( /* … */, translator: new Translations(
     fn( string $key, string $default ): string => __( $default, 'my-plugin' ),

@@ -2,7 +2,7 @@
 /**
  * Shared visual identity for the built-in templates.
  *
- * @package   Sugar\TextPdf
+ * @package   SugarCommerce\TextPdf
  * @copyright Copyright (c) 2026, ArrayPress Limited
  * @license   GPL-2.0-or-later
  * @since     1.0.0
@@ -10,9 +10,9 @@
 
 declare( strict_types=1 );
 
-namespace Sugar\TextPdf\Templates;
+namespace SugarCommerce\TextPdf\Templates;
 
-use Sugar\TextPdf\Color;
+use SugarCommerce\TextPdf\Color;
 
 /**
  * Class Branding

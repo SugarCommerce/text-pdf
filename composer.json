@@ -32,12 +32,12 @@
   },
   "autoload": {
     "psr-4": {
-      "Sugar\\TextPdf\\": "src/"
+      "SugarCommerce\\TextPdf\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Sugar\\TextPdf\\Tests\\": "tests/"
+      "SugarCommerce\\TextPdf\\Tests\\": "tests/"
     }
   },
   "scripts": {
