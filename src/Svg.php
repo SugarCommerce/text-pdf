@@ -208,7 +208,7 @@ final readonly class Svg {
 	 * ±32767 — well beyond any page, and small enough that a hostile or
 	 * mis-scaled path cannot produce an operand a reader will reject.
 	 */
-	private const LIMIT = 32767.0;
+	private const float LIMIT = 32767.0;
 
 	/**
 	 * Force a coordinate into a range the format can express.

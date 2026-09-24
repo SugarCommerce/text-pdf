@@ -69,6 +69,7 @@ final class Translations implements Translator {
 	/**
 	 * {@inheritDoc}
 	 */
+	#[\Override]
 	public function translate( string $key, string $default ): string {
 		$result = ( $this->callback )( $key, $default );
 

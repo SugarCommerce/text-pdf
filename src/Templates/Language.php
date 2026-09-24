@@ -49,6 +49,7 @@ enum Language: string implements Translator {
 	/**
 	 * {@inheritDoc}
 	 */
+	#[\Override]
 	public function translate( string $key, string $default ): string {
 		return self::strings()[ $this->value ][ $key ] ?? $default;
 	}
