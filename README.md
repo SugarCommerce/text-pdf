@@ -45,7 +45,7 @@ $pdf->heading( 'Monthly Report' )
 $pdf->save( '/tmp/report.pdf', [ 'Title' => 'Monthly Report' ] );
 ```
 
-`render()` returns the bytes instead, for streaming to a browser or handing to a mailer.
+`render()` returns the bytes instead, for streaming to a browser or handing to a mailer. Pass `'CreationDate' => $timestamp` in the metadata and the same document renders to the same bytes every time — for a content-addressed store or a snapshot test.
 
 ### Layout
 

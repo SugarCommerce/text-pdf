@@ -644,8 +644,12 @@ final class Document {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array<string, string> $metadata Title, Author, Subject,
-	 *                                        Keywords, Creator.
+	 * @param array<string, string|int> $metadata Title, Author, Subject,
+	 *                                            Keywords, Creator, and
+	 *                                            CreationDate (a Unix
+	 *                                            timestamp, since 1.1.0)
+	 *                                            for the same bytes on
+	 *                                            every render.
 	 *
 	 * @return string
 	 */

@@ -1,6 +1,6 @@
 {
   "name": "sugarcommerce/text-pdf",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "PDF generation with no dependencies. Invoices, statements and receipts with tables, vector SVG logos, multi-page flow, EU VAT treatments including reverse charge, and 11 languages. Injection-safe.",
   "type": "library",
   "license": "GPL-2.0-or-later",

@@ -75,6 +75,16 @@ final class PdfTest extends TestCase {
 		$this->assertStringContainsString( '/Producer (sugarcommerce/text-pdf)', $pdf );
 	}
 
+	/**
+	 * A fixed creation date makes the same document the same bytes.
+	 */
+	public function test_a_fixed_creation_date_renders_the_same_bytes(): void {
+		$render = static fn (): string => ( new Document() )->text( 'Same every time' )->render( array( 'CreationDate' => 1_700_000_000 ) );
+
+		$this->assertStringContainsString( '/CreationDate (D:20231114221320Z)', $render() );
+		$this->assertSame( $render(), $render() );
+	}
+
 	/* ─── Page sizes ────────────────────────────────────────────────── */
 
 	#[DataProvider( 'page_sizes' )]

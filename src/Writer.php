@@ -77,7 +77,12 @@ final readonly class Writer {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array<string, string> $metadata Metadata values.
+	 * `CreationDate` (since 1.1.0), a Unix timestamp, fixes the one value
+	 * that otherwise changes from run to run — so the same document renders
+	 * to the same bytes, which is what a content-addressed store or a
+	 * snapshot test needs. Without it, the time of rendering.
+	 *
+	 * @param array<string, string|int> $metadata Metadata values.
 	 *
 	 * @return string
 	 */
@@ -94,7 +99,9 @@ final readonly class Writer {
 		}
 
 		$parts[] = '/Producer (sugarcommerce/text-pdf)';
-		$parts[] = '/CreationDate (D:' . gmdate( 'YmdHis' ) . "Z)";
+		$created = $metadata['CreationDate'] ?? $metadata['creationdate'] ?? null;
+
+		$parts[] = '/CreationDate (D:' . gmdate( 'YmdHis', is_numeric( $created ) ? (int) $created : time() ) . "Z)";
 
 		return '<<' . implode( ' ', $parts ) . '>>';
 	}
