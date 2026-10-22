@@ -34,17 +34,60 @@ namespace SugarCommerce\TextPdf\Templates;
  */
 enum Language: string implements Translator {
 
-	case English    = 'en';
-	case German     = 'de';
-	case French     = 'fr';
-	case Spanish    = 'es';
-	case Italian    = 'it';
-	case Dutch      = 'nl';
+	/**
+	 * English, and the fallback for every missing phrase.
+	 */
+	case English = 'en';
+
+	/**
+	 * German. Also switches on the German VAT wording.
+	 */
+	case German = 'de';
+
+	/**
+	 * French.
+	 */
+	case French = 'fr';
+
+	/**
+	 * Spanish.
+	 */
+	case Spanish = 'es';
+
+	/**
+	 * Italian.
+	 */
+	case Italian = 'it';
+
+	/**
+	 * Dutch.
+	 */
+	case Dutch = 'nl';
+
+	/**
+	 * Portuguese.
+	 */
 	case Portuguese = 'pt';
-	case Swedish    = 'sv';
-	case Danish     = 'da';
-	case Norwegian  = 'nb';
-	case Finnish    = 'fi';
+
+	/**
+	 * Swedish.
+	 */
+	case Swedish = 'sv';
+
+	/**
+	 * Danish.
+	 */
+	case Danish = 'da';
+
+	/**
+	 * Norwegian Bokmål; Nynorsk and `no` resolve here too.
+	 */
+	case Norwegian = 'nb';
+
+	/**
+	 * Finnish.
+	 */
+	case Finnish = 'fi';
 
 	/**
 	 * {@inheritDoc}

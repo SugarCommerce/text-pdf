@@ -32,11 +32,13 @@ final readonly class Writer {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string[]              $pages    Content streams.
-	 * @param float                 $width    Page width in points.
-	 * @param float                 $height   Page height in points.
-	 * @param array<string, string> $metadata Title, Author, Subject,
-	 *                                        Keywords, Creator.
+	 * @param list<string>              $pages    Content streams.
+	 * @param float                     $width    Page width in points.
+	 * @param float                     $height   Page height in points.
+	 * @param array<string, string|int> $metadata Title, Author, Subject,
+	 *                                            Keywords, Creator, and
+	 *                                            CreationDate as a Unix
+	 *                                            timestamp.
 	 *
 	 * @return string Raw PDF bytes.
 	 */
@@ -94,16 +96,74 @@ final readonly class Writer {
 			$value = trim( (string) ( $metadata[ $field ] ?? $metadata[ strtolower( $field ) ] ?? '' ) );
 
 			if ( '' !== $value ) {
-				$parts[] = '/' . $field . ' (' . Document::escape( $value ) . ')';
+				$parts[] = '/' . $field . ' ' . self::text_string( $value );
 			}
 		}
 
 		$parts[] = '/Producer (sugarcommerce/text-pdf)';
-		$created = $metadata['CreationDate'] ?? $metadata['creationdate'] ?? null;
-
-		$parts[] = '/CreationDate (D:' . gmdate( 'YmdHis', is_numeric( $created ) ? (int) $created : time() ) . "Z)";
+		$parts[] = '/CreationDate (D:' . gmdate( 'YmdHis', self::timestamp( $metadata['CreationDate'] ?? $metadata['creationdate'] ?? null ) ) . 'Z)';
 
 		return '<<' . implode( ' ', $parts ) . '>>';
+	}
+
+	/**
+	 * Encode a value as a PDF text string for the information dictionary.
+	 *
+	 * Plain ASCII stays a readable literal. Anything else is written as
+	 * UTF-16BE with a byte-order mark, in hex: the information dictionary
+	 * is read as PDFDocEncoding or UTF-16, never Windows-1252, so the
+	 * WinAnsi bytes used on the page put the wrong character in a viewer's
+	 * title bar — an em dash showed as an unrelated letter and a euro sign
+	 * as a bullet. UTF-16 also keeps names the page fonts cannot draw, and
+	 * a hex string has no delimiter to break out of.
+	 *
+	 * Control characters are removed either way, and invalid UTF-8 is
+	 * replaced rather than passed through.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param string $value UTF-8 text.
+	 *
+	 * @return string A complete PDF string object, delimiters included.
+	 */
+	private static function text_string( string $value ): string {
+		$value = (string) preg_replace( '/[\x00-\x1F\x7F]/', '', mb_scrub( $value, 'UTF-8' ) );
+
+		if ( 1 !== preg_match( '/[^\x20-\x7E]/', $value ) ) {
+			return '(' . Document::escape( $value ) . ')';
+		}
+
+		return '<FEFF' . strtoupper( bin2hex( mb_convert_encoding( $value, 'UTF-16BE', 'UTF-8' ) ) ) . '>';
+	}
+
+	/**
+	 * The creation time to record.
+	 *
+	 * A number, or a numeric string, is taken as a Unix timestamp;
+	 * anything else — absent, empty, a date string — means now. Only
+	 * years 0001-9999 fit the date format, so a value outside them is
+	 * clamped rather than written as a five-digit or negative year, and
+	 * rather than cast from a float too large for an int.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param mixed $created Caller-supplied value.
+	 *
+	 * @return int Unix timestamp.
+	 */
+	private static function timestamp( mixed $created ): int {
+		if ( ! is_int( $created ) && ! is_float( $created ) && ! ( is_string( $created ) && is_numeric( $created ) ) ) {
+			return time();
+		}
+
+		$created = (float) $created;
+
+		if ( is_nan( $created ) ) {
+			return time();
+		}
+
+		// 0001-01-01 00:00:00 to 9999-12-31 23:59:59, UTC.
+		return (int) max( -62135596800.0, min( 253402300799.0, $created ) );
 	}
 
 	/**

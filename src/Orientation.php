@@ -19,6 +19,14 @@ namespace SugarCommerce\TextPdf;
  */
 enum Orientation {
 
+	/**
+	 * Taller than wide; the paper size as listed.
+	 */
 	case Portrait;
+
+	/**
+	 * Wider than tall; width and height swapped.
+	 */
 	case Landscape;
+
 }

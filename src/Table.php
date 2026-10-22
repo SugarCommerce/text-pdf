@@ -45,7 +45,7 @@ final class Table {
 	/**
 	 * Column widths as fractions of the content width.
 	 *
-	 * @var float[]
+	 * @var list<float>
 	 */
 	private array $widths = array();
 
@@ -67,6 +67,8 @@ final class Table {
 	private float $row_height = 18.0;
 
 	/**
+	 * Start a table with optional column headings.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param array<int, string> $headers Column headings.
@@ -81,7 +83,7 @@ final class Table {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param float[] $fractions Values summing to roughly 1.0.
+	 * @param array<int, float> $fractions Values summing to roughly 1.0.
 	 *
 	 * @return self
 	 */
@@ -227,7 +229,7 @@ final class Table {
 	 * @since 1.0.0
 	 *
 	 * @param Document   $pdf    Target document.
-	 * @param float[]    $widths Resolved column widths in points.
+	 * @param list<float> $widths Resolved column widths in points.
 	 * @param float      $size   Font size.
 	 * @param Color|null $fill   Background colour.
 	 *
@@ -258,8 +260,8 @@ final class Table {
 	 * @since 1.0.0
 	 *
 	 * @param Document   $pdf    Target document.
-	 * @param string[]   $cells  Cell values.
-	 * @param float[]    $widths Column widths in points.
+	 * @param array<int, string> $cells  Cell values.
+	 * @param list<float>        $widths Column widths in points.
 	 * @param float      $size   Font size.
 	 * @param Font       $font   Typeface.
 	 * @param Color|null $color  Text colour.
@@ -304,7 +306,7 @@ final class Table {
 	 *
 	 * @param float $available Content width in points.
 	 *
-	 * @return float[]
+	 * @return list<float>
 	 */
 	private function resolve_widths( float $available ): array {
 		$columns = max( count( $this->headers ), array() === $this->rows ? 0 : count( $this->rows[0] ) );

@@ -46,14 +46,20 @@ final class Translations implements Translator {
 	 * and there is no type for "callable" that also accepts a plain
 	 * function name or an object with __invoke.
 	 *
-	 * @var callable(string, string): string
+	 * Typed to return `mixed` because real translation functions do
+	 * return null or false for a missing entry; {@see translate()} falls
+	 * back when they do.
+	 *
+	 * @var callable(string, string): mixed
 	 */
 	private $callback;
 
 	/**
+	 * Wrap a translation function.
+	 *
 	 * @since 1.0.0
 	 *
-	 * @param callable(string, string): string $callback Receives the key
+	 * @param callable(string, string): mixed $callback Receives the key
 	 *                                                   and the English
 	 *                                                   default, returns
 	 *                                                   the translation.

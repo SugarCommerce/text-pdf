@@ -39,6 +39,8 @@ use SugarCommerce\TextPdf\{Align, Color, Document, Font, Orientation, PageSize, 
 final readonly class Statement {
 
 	/**
+	 * Describe a statement of account.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param Branding                       $branding    Visual identity.
@@ -46,14 +48,17 @@ final readonly class Statement {
 	 * @param string                         $period      Period covered.
 	 * @param array<int, array<int, string>> $rows        Transaction rows.
 	 * @param array<string, string>          $closing     Closing figures.
-	 * @param string[]                       $headers     Column headings.
-	 * @param float[]                        $widths      Column width fractions.
+	 * @param array<int, string>             $headers     Column headings.
+	 * @param array<int, float>              $widths      Column width fractions.
 	 * @param array<int, Align>              $aligns      Column alignment.
 	 * @param array<string, string>          $summary     Opening balance, credit
 	 *                                                    limit, and similar.
 	 * @param string                         $reference   Account or statement number.
 	 * @param PageSize                       $size        Paper size.
 	 * @param Orientation                    $orientation Portrait or landscape.
+	 * @param Translator                     $translator  Source of the
+	 *                                                    template's own
+	 *                                                    wording.
 	 */
 	public function __construct(
 		public Branding $branding,
@@ -76,7 +81,7 @@ final readonly class Statement {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return string[]
+	 * @return array<int, string>
 	 */
 	private function column_headers(): array {
 		if ( array() !== $this->headers ) {

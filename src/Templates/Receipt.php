@@ -32,17 +32,21 @@ use SugarCommerce\TextPdf\{Align, Color, Document, Font, Orientation, PageSize, 
 final readonly class Receipt {
 
 	/**
+	 * Describe a receipt.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param Branding              $branding   Visual identity.
 	 * @param string                $number     Receipt reference.
 	 * @param Party                 $to         Who paid.
-	 * @param LineItem[]            $items      What was bought.
+	 * @param array<int, LineItem>  $items      What was bought.
 	 * @param string                $total      Amount paid, formatted.
 	 * @param array<string, string> $details    Date, method, order reference.
 	 * @param array<string, string> $breakdown  Subtotal and tax rows.
 	 * @param string                $notes      Anything else worth saying.
 	 * @param PageSize              $size       Paper size.
+	 * @param Translator            $translator Source of the template's own
+	 *                                          wording.
 	 */
 	public function __construct(
 		public Branding $branding,

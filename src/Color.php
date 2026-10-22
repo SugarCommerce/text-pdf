@@ -23,6 +23,11 @@ namespace SugarCommerce\TextPdf;
 final readonly class Color {
 
 	/**
+	 * Create a colour from 0-255 channel values.
+	 *
+	 * Out-of-range values are accepted here and clamped when written, so
+	 * a computed channel cannot produce an operand a reader rejects.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param int $red   0-255.

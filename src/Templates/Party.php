@@ -20,10 +20,12 @@ namespace SugarCommerce\TextPdf\Templates;
 final readonly class Party {
 
 	/**
+	 * Describe a party to the document.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param string   $name    Company or person.
-	 * @param string[] $address Address lines.
+	 * @param array<int, string> $address Address lines.
 	 * @param string   $email   Contact address.
 	 * @param string   $tax_id  VAT or tax registration number.
 	 */
@@ -41,7 +43,7 @@ final readonly class Party {
 	 *
 	 * @param Translator $translator Wording source.
 	 *
-	 * @return string[]
+	 * @return list<string>
 	 */
 	public function translated_lines( Translator $translator ): array {
 		$lines = $this->address;
@@ -62,7 +64,7 @@ final readonly class Party {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return string[]
+	 * @return list<string>
 	 */
 	public function lines(): array {
 		return $this->translated_lines( Language::English );

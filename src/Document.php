@@ -36,7 +36,7 @@ final class Document {
 	/**
 	 * Completed page content streams.
 	 *
-	 * @var string[]
+	 * @var list<string>
 	 */
 	private array $pages = array();
 
@@ -51,19 +51,25 @@ final class Document {
 	private float $y;
 
 	/**
-	 * Page dimensions in points.
+	 * Page width in points, after orientation is applied.
 	 */
 	private readonly float $page_width;
+
+	/**
+	 * Page height in points, after orientation is applied.
+	 */
 	private readonly float $page_height;
 
 	/**
 	 * Callback drawing a footer on every page.
 	 *
-	 * @var callable|null
+	 * @var (callable(Document, int, int): mixed)|null
 	 */
 	private $footer = null;
 
 	/**
+	 * Start an empty document with the cursor at the top margin.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param PageSize    $size        Paper size. A4 by default, since
@@ -231,7 +237,8 @@ final class Document {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param callable $callback Receives ( Document, int $page, int $total ).
+	 * @param callable(Document, int, int): mixed $callback Receives
+	 *                                                     ( Document, int $page, int $total ).
 	 *
 	 * @return self
 	 */
@@ -424,12 +431,14 @@ final class Document {
 			return $this;
 		}
 
-		$escaped = self::escape( $text );
+		$shown   = self::winansi( $text );
+		$escaped = str_replace( array( '\\', '(', ')' ), array( '\\\\', '\\(', '\\)' ), $shown );
 
 		// Alignment is computed from the measured width — the reason the
-		// font metrics exist at all.
+		// font metrics exist at all. The escaping backslashes are never
+		// drawn, so they are not measured.
 		if ( Align::Left !== $align && $box_width > 0 ) {
-			$measured = $font->width_of( $escaped, $size );
+			$measured = $font->width_of( $shown, $size );
 			$x       += Align::Right === $align ? $box_width - $measured : ( $box_width - $measured ) / 2;
 		}
 
@@ -668,8 +677,9 @@ final class Document {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string                $path     Destination.
-	 * @param array<string, string> $metadata Document metadata.
+	 * @param string                    $path     Destination.
+	 * @param array<string, string|int> $metadata Document metadata, as
+	 *                                            for {@see render()}.
 	 *
 	 * @return int Bytes written.
 	 *
@@ -692,9 +702,9 @@ final class Document {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string[] $pages Page streams.
+	 * @param list<string> $pages Page streams.
 	 *
-	 * @return string[]
+	 * @return list<string>
 	 */
 	private function apply_footers( array $pages ): array {
 		if ( null === $this->footer ) {
@@ -728,7 +738,7 @@ final class Document {
 	 * @param float  $size  Font size.
 	 * @param float  $width Available width.
 	 *
-	 * @return string[]
+	 * @return list<string>
 	 */
 	private function wrap( string $text, Font $font, float $size, float $width ): array {
 		$lines = array();
@@ -746,7 +756,7 @@ final class Document {
 			foreach ( explode( ' ', $paragraph ) as $word ) {
 				$candidate = '' === $line ? $word : $line . ' ' . $word;
 
-				if ( $font->width_of( self::escape( $candidate ), $size ) <= $width ) {
+				if ( $font->width_of( self::winansi( $candidate ), $size ) <= $width ) {
 					$line = $candidate;
 					continue;
 				}
@@ -758,11 +768,8 @@ final class Document {
 
 				// A single word wider than the column — a long URL, say —
 				// must be cut or it runs off the page.
-				while ( strlen( $word ) > 1 && $font->width_of( self::escape( $word ), $size ) > $width ) {
-					$measured = $font->width_of( self::escape( $word ), $size );
-					$cut      = (int) max( 1, floor( strlen( $word ) * ( $width / $measured ) ) );
-					$lines[]  = substr( $word, 0, $cut );
-					$word     = substr( $word, $cut );
+				if ( $font->width_of( self::winansi( $word ), $size ) > $width ) {
+					$word = self::cut( $word, $font, $size, $width, $lines );
 				}
 
 				$line = $word;
@@ -774,6 +781,51 @@ final class Document {
 		}
 
 		return $lines;
+	}
+
+	/**
+	 * Cut a word wider than the column into column-wide pieces.
+	 *
+	 * Walks the word once, measuring a character at a time and cutting on
+	 * character boundaries. Re-measuring the remainder after every cut —
+	 * the obvious loop — is quadratic, and a few hundred kilobytes of
+	 * unbroken text in a customer-supplied field then holds a worker for
+	 * minutes. Cutting mid-character would also break the UTF-8, and one
+	 * broken sequence turns every accent on the line into `?`.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param string       $word  The word, wider than `$width`.
+	 * @param Font         $font  Typeface.
+	 * @param float        $size  Font size.
+	 * @param float        $width Available width.
+	 * @param list<string> $lines Completed lines; every full piece is
+	 *                            appended here.
+	 *
+	 * @return string The last, partial piece, which later words may join.
+	 */
+	private static function cut( string $word, Font $font, float $size, float $width, array &$lines ): string {
+		$piece    = '';
+		$used     = 0.0;
+		$measured = array();
+
+		foreach ( self::characters( $word ) as $character ) {
+			$advance = $measured[ $character ] ??= $font->width_of( self::winansi( $character ), $size );
+
+			// Never emit an empty piece: a single character wider than the
+			// column stands on a line of its own, which also guarantees
+			// the walk makes progress.
+			if ( '' !== $piece && $used + $advance > $width ) {
+				$lines[] = $piece;
+				$piece   = '';
+				$used    = 0.0;
+			}
+
+			$piece .= $character;
+			$used  += $advance;
+		}
+
+		return $piece;
 	}
 
 	/**
@@ -793,20 +845,6 @@ final class Document {
 		};
 	}
 
-	/**
-	 * Prepare a string for a PDF text operator.
-	 *
-	 * Transcodes UTF-8 to Windows-1252 so £, é and — survive, removes
-	 * every control character, and escapes the three bytes that would
-	 * otherwise terminate the string early. An unescaped `)` produces a
-	 * file no reader will open.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $text Raw text.
-	 *
-	 * @return string
-	 */
 	/**
 	 * Force a value into a number the format can express.
 	 *
@@ -834,7 +872,42 @@ final class Document {
 		return max( -32767.0, min( 32767.0, $value ) );
 	}
 
+	/**
+	 * Prepare a string for a PDF text operator.
+	 *
+	 * Transcodes UTF-8 to Windows-1252 so £, é and — survive, removes
+	 * every control character, and escapes the three bytes that would
+	 * otherwise terminate the string early. An unescaped `)` produces a
+	 * file no reader will open.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $text Raw text.
+	 *
+	 * @return string
+	 */
 	public static function escape( string $text ): string {
+		return str_replace( array( '\\', '(', ')' ), array( '\\\\', '\\(', '\\)' ), self::winansi( $text ) );
+	}
+
+	/**
+	 * Transcode text to the bytes the page will actually show.
+	 *
+	 * UTF-8 to Windows-1252, with every C0 control and DEL removed but
+	 * the delimiters not yet escaped. This is what gets measured: a
+	 * backslash added by escaping is never drawn, so counting it pushes
+	 * a right-aligned `(£5.00)` a backslash-width out of line.
+	 *
+	 * Invalid UTF-8 cannot be transcoded at all, so it degrades to
+	 * printable ASCII with `?` for everything else rather than failing.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param string $text Raw text.
+	 *
+	 * @return string Windows-1252 bytes, no control characters.
+	 */
+	private static function winansi( string $text ): string {
 		$converted = @iconv( 'UTF-8', 'Windows-1252//TRANSLIT', $text );
 
 		if ( false === $converted ) {
@@ -843,8 +916,23 @@ final class Document {
 
 		// Every C0 control and DEL, including CR and LF — a stray CR in a
 		// customer's name would otherwise displace the rest of the line.
-		$converted = (string) preg_replace( '/[\x00-\x1F\x7F]/', '', $converted );
+		return (string) preg_replace( '/[\x00-\x1F\x7F]/', '', $converted );
+	}
 
-		return str_replace( array( '\\', '(', ')' ), array( '\\\\', '\\(', '\\)' ), $converted );
+	/**
+	 * Split text into characters, or into bytes when it is not UTF-8.
+	 *
+	 * Cutting on a byte boundary can split a multibyte character, and one
+	 * broken sequence makes the whole string invalid UTF-8 — at which
+	 * point every accent in it degrades to `?`.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param string $text Text.
+	 *
+	 * @return list<string>
+	 */
+	private static function characters( string $text ): array {
+		return mb_check_encoding( $text, 'UTF-8' ) ? mb_str_split( $text, 1, 'UTF-8' ) : str_split( $text );
 	}
 }

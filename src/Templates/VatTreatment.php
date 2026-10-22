@@ -78,7 +78,7 @@ enum VatTreatment {
 	 *
 	 * @param bool $german Include the German text alongside the English.
 	 *
-	 * @return string[] One line per element, or empty for standard VAT.
+	 * @return list<string> One line per element, or empty for standard VAT.
 	 */
 	public function notes( bool $german = false ): array {
 		$notes = match ( $this ) {

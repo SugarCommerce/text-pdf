@@ -44,13 +44,15 @@ use SugarCommerce\TextPdf\{Align, Color, Document, Font, Orientation, PageSize, 
 final readonly class Invoice {
 
 	/**
+	 * Describe an invoice.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param Branding              $branding Visual identity.
 	 * @param string                $number   Invoice reference.
 	 * @param Party                 $from     Who is issuing it.
 	 * @param Party                 $to       Who is being billed.
-	 * @param LineItem[]            $items    Billable lines.
+	 * @param array<int, LineItem>  $items    Billable lines.
 	 * @param array<string, string> $totals   Subtotal rows: label => amount,
 	 *                                        or a list of [label, amount] pairs.
 	 * @param array<string, string> $total    The headline total, one entry.
@@ -61,7 +63,7 @@ final readonly class Invoice {
 	 * @param VatTreatment          $vat          How VAT is being handled. Anything
 	 *                                            other than Standard prints the
 	 *                                            mandatory wording.
-	 * @param VatLine[]             $vat_lines    Per-rate breakdown. Required once
+	 * @param array<int, VatLine>   $vat_lines    Per-rate breakdown. Required once
 	 *                                            more than one rate appears.
 	 * @param string                $supply_date  Date of supply, which German law
 	 *                                            requires separately from the
@@ -69,6 +71,8 @@ final readonly class Invoice {
 	 *                                            particular most often left off.
 	 * @param bool                  $german_notes Print the German wording as well
 	 *                                            as the English.
+	 * @param Translator            $translator   Source of the template's own
+	 *                                            wording.
 	 */
 	public function __construct(
 		public Branding $branding,
@@ -102,7 +106,7 @@ final readonly class Invoice {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return string[] Human-readable problems; empty when nothing is missing.
+	 * @return list<string> Human-readable problems; empty when nothing is missing.
 	 */
 	public function compliance_warnings(): array {
 		$missing = array();

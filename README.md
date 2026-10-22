@@ -47,6 +47,8 @@ $pdf->save( '/tmp/report.pdf', [ 'Title' => 'Monthly Report' ] );
 
 `render()` returns the bytes instead, for streaming to a browser or handing to a mailer. Pass `'CreationDate' => $timestamp` in the metadata and the same document renders to the same bytes every time — for a content-addressed store or a snapshot test.
 
+Metadata outside plain ASCII is written as UTF-16, so a title keeps its em dash and an author name keeps letters the page fonts cannot draw.
+
 ### Layout
 
 ```php
@@ -223,7 +225,7 @@ composer install
 composer test
 ```
 
-136 tests, 1,309 assertions — the cross-reference table byte-offsets, page-break arithmetic, table pagination, SVG conversion, every VAT treatment's required wording, the Latin-1 boundary for all 11 languages, and the injection cases.
+150 tests, 1,349 assertions — the cross-reference table byte-offsets, page-break arithmetic, table pagination, SVG conversion, every VAT treatment's required wording, the Latin-1 boundary for all 11 languages, and the injection cases.
 
 ## License
 

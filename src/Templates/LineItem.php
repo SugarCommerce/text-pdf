@@ -25,6 +25,8 @@ namespace SugarCommerce\TextPdf\Templates;
 final readonly class LineItem {
 
 	/**
+	 * Describe one billable line.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param string $description What was sold.

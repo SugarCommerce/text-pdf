@@ -14,8 +14,10 @@ namespace SugarCommerce\TextPdf\Tests;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use SugarCommerce\TextPdf\Align;
 use SugarCommerce\TextPdf\Color;
 use SugarCommerce\TextPdf\Document;
+use SugarCommerce\TextPdf\Font;
 use SugarCommerce\TextPdf\Svg;
 
 /**
@@ -107,7 +109,137 @@ final class PdfSecurityTest extends TestCase {
 		$this->assertMatchesRegularExpression( '/^\?+$/', $escaped );
 	}
 
-	/* ─── Numbers ───────────────────────────────────────────────────── */
+	/**
+	 * Outside the Latin range of the page fonts, the information
+	 * dictionary is UTF-16 in hex — which has no delimiter at all, so
+	 * there is nothing for a value to break out of.
+	 */
+	public function test_non_ascii_metadata_is_utf16_hex(): void {
+		$title    = 'Café) >> /OpenAction << /S /JavaScript /JS (alert(1)';
+		$rendered = ( new Document() )->text( 'Body' )->render( array( 'Title' => $title ) );
+		$expected = '<FEFF' . strtoupper( bin2hex( mb_convert_encoding( $title, 'UTF-16BE', 'UTF-8' ) ) ) . '>';
+
+		$this->assertStringContainsString( '/Title ' . $expected, $rendered );
+		$this->assertStringNotContainsString( '/OpenAction', $rendered );
+	}
+
+	/**
+	 * Windows-1252 bytes in the information dictionary are read as
+	 * PDFDocEncoding, where 0x97 and 0x80 are different characters.
+	 */
+	public function test_metadata_is_not_written_in_winansi(): void {
+		$rendered = ( new Document() )->text( 'x' )->render( array( 'Title' => 'Statement — €5' ) );
+
+		$this->assertStringNotContainsString( "\x97", $rendered );
+		$this->assertStringNotContainsString( "\x80", $rendered );
+		$this->assertStringContainsString( '/Title <FEFF', $rendered );
+	}
+
+	public function test_control_characters_are_removed_from_metadata(): void {
+		$rendered = ( new Document() )->text( 'x' )->render( array( 'Author' => "Acme\r\n/Evil" ) );
+
+		$this->assertStringContainsString( '/Author (Acme/Evil)', $rendered );
+	}
+
+	/**
+	 * A creation date outside 0001-9999 is clamped, not written as a
+	 * year the date format cannot hold.
+	 */
+	#[DataProvider( 'out_of_range_dates' )]
+	public function test_an_out_of_range_creation_date_is_clamped( int|string $created, string $expected ): void {
+		$rendered = ( new Document() )->text( 'x' )->render( array( 'CreationDate' => $created ) );
+
+		$this->assertStringContainsString( '/CreationDate (D:' . $expected . 'Z)', $rendered );
+	}
+
+	/**
+	 * @return array<string, array{0: int|string, 1: string}>
+	 */
+	public static function out_of_range_dates(): array {
+		return array(
+			'int max'      => array( PHP_INT_MAX, '99991231235959' ),
+			'huge string'  => array( '1e30', '99991231235959' ),
+			'far past'     => array( PHP_INT_MIN, '00010101000000' ),
+			'numeric text' => array( '1700000000', '20231114221320' ),
+		);
+	}
+
+	/* ─── Layout ────────────────────────────────────────────────────── */
+
+	/**
+	 * Truncating dropped a byte and re-measured the whole string, which
+	 * is quadratic — a long customer-supplied cell held a worker for
+	 * minutes.
+	 */
+	public function test_truncating_a_huge_value_is_fast(): void {
+		$start     = hrtime( true );
+		$truncated = Font::Helvetica->truncate( str_repeat( 'a', 100_000 ), 100, 10 );
+
+		$this->assertLessThan( 2.0, ( hrtime( true ) - $start ) / 1e9 );
+		$this->assertLessThanOrEqual( 100, Font::Helvetica->width_of( $truncated, 10 ) );
+		$this->assertStringEndsWith( '...', $truncated );
+	}
+
+	/**
+	 * Cutting an unbroken word re-measured the remainder after every
+	 * cut, which is quadratic in the length of the word.
+	 */
+	public function test_wrapping_a_huge_unbroken_value_is_fast(): void {
+		$start = hrtime( true );
+		$pdf   = ( new Document() )->text( str_repeat( 'a', 500_000 ) );
+
+		$this->assertLessThan( 2.0, ( hrtime( true ) - $start ) / 1e9 );
+		$this->assertGreaterThan( 1, $pdf->page_count() );
+	}
+
+	/**
+	 * A cut through the middle of a multibyte character made the string
+	 * invalid UTF-8, and every accent in it then printed as `?`.
+	 */
+	public function test_truncation_never_splits_a_character(): void {
+		$truncated = Font::Helvetica->truncate( str_repeat( 'Ü', 100 ), 50, 10 );
+
+		$this->assertTrue( mb_check_encoding( $truncated, 'UTF-8' ) );
+		$this->assertStringNotContainsString( '?', Document::escape( $truncated ) );
+	}
+
+	public function test_wrapping_never_splits_a_character(): void {
+		$rendered = ( new Document() )->text( str_repeat( 'Ü', 300 ) )->render();
+
+		$this->assertStringNotContainsString( '?', $rendered );
+		$this->assertGreaterThan( 1, substr_count( $rendered, ') Tj' ) );
+	}
+
+	/**
+	 * Every cut piece fits the column it was cut for.
+	 */
+	public function test_cut_pieces_fit_the_column(): void {
+		$pdf = new Document();
+		$pdf->text( str_repeat( 'W', 400 ) );
+
+		preg_match_all( '/\((W+)\) Tj/', $pdf->render(), $matches );
+
+		$this->assertNotEmpty( $matches[1] );
+
+		foreach ( $matches[1] as $piece ) {
+			$this->assertLessThanOrEqual( $pdf->content_width(), Font::Helvetica->width_of( $piece, $pdf->font_size ) );
+		}
+	}
+
+	/**
+	 * The backslashes escaping adds are never drawn, so measuring them
+	 * pushed right-aligned text out of line.
+	 */
+	public function test_alignment_measures_the_text_not_its_escaping(): void {
+		$pdf = new Document();
+		$pdf->text_at( '(5.00)', 100, 500, 10, Font::Helvetica, null, Align::Right, 200 );
+
+		$expected = 100 + 200 - Font::Helvetica->width_of( '(5.00)', 10 );
+
+		$this->assertStringContainsString( sprintf( '%.2F 500.00 Td', $expected ), $pdf->render() );
+	}
+
+		/* ─── Numbers ───────────────────────────────────────────────────── */
 
 	/**
 	 * `sprintf( '%.2F', INF )` writes the literal `INF`, which is not a

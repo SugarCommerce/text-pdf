@@ -24,7 +24,19 @@ namespace SugarCommerce\TextPdf;
  */
 enum Align {
 
+	/**
+	 * Flush with the left edge of the box.
+	 */
 	case Left;
+
+	/**
+	 * Flush with the right edge — the one money columns need.
+	 */
 	case Right;
+
+	/**
+	 * Centred in the box.
+	 */
 	case Center;
+
 }

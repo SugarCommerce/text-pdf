@@ -31,9 +31,20 @@ namespace SugarCommerce\TextPdf;
  */
 enum Font: string {
 
-	case Helvetica     = 'Helvetica';
+	/**
+	 * Helvetica, the proportional body face.
+	 */
+	case Helvetica = 'Helvetica';
+
+	/**
+	 * Helvetica-Bold, for headings, labels and totals.
+	 */
 	case HelveticaBold = 'Helvetica-Bold';
-	case Courier       = 'Courier';
+
+	/**
+	 * Courier, monospaced — every glyph 600 units wide.
+	 */
+	case Courier = 'Courier';
 
 	/**
 	 * Character widths for ASCII 32-126, in 1/1000 em.
@@ -43,7 +54,13 @@ enum Font: string {
 	 * @return array<int, int> Code point => width.
 	 */
 	public function widths(): array {
-		return match ( $this ) {
+		// Built once per font: width_of() runs for every cell, line and
+		// word of a document, and rebuilding a 95-entry table each time
+		// was most of its cost.
+		/** @var array<string, array<int, int>> $tables */
+		static $tables = array();
+
+		return $tables[ $this->value ] ??= match ( $this ) {
 			self::Courier       => array_fill( 32, 95, 600 ),
 			self::Helvetica     => self::helvetica_widths(),
 			self::HelveticaBold => self::helvetica_bold_widths(),
@@ -180,13 +197,34 @@ enum Font: string {
 			return $text;
 		}
 
-		$ellipsis = $this->width_of( '...', $size );
+		// One pass, measuring a character at a time. Re-measuring the whole
+		// string after dropping each byte is quadratic: twenty kilobytes
+		// took seconds, and a long enough customer-supplied value held a
+		// worker indefinitely. Cutting by character rather than by byte
+		// also keeps the UTF-8 valid — a split `ü` would otherwise turn
+		// every accent in the cell into `?`.
+		$budget     = $width - $this->width_of( '...', $size );
+		$widths     = $this->widths();
+		$fallback   = $widths[ ord( 'n' ) ] ?? 556;
+		$characters = mb_check_encoding( $text, 'UTF-8' ) ? mb_str_split( $text, 1, 'UTF-8' ) : str_split( $text );
+		$units      = 0;
+		$kept       = '';
 
-		while ( '' !== $text && $this->width_of( $text, $size ) + $ellipsis > $width ) {
-			$text = substr( $text, 0, -1 );
+		foreach ( $characters as $character ) {
+			// Measured exactly as width_of() measures: every byte, with
+			// anything outside the table at the width of `n`.
+			for ( $i = 0, $length = strlen( $character ); $i < $length; $i++ ) {
+				$units += $widths[ ord( $character[ $i ] ) ] ?? $fallback;
+			}
+
+			if ( ( $units / 1000 ) * $size > $budget ) {
+				break;
+			}
+
+			$kept .= $character;
 		}
 
-		return rtrim( $text ) . '...';
+		return rtrim( $kept ) . '...';
 	}
 
 	/**

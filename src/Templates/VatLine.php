@@ -28,6 +28,8 @@ namespace SugarCommerce\TextPdf\Templates;
 final readonly class VatLine {
 
 	/**
+	 * Describe one rate of a VAT breakdown.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param string $rate   Rate as displayed, e.g. `20%` or `0%`.

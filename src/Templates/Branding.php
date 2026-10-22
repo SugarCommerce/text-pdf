@@ -25,21 +25,23 @@ use SugarCommerce\TextPdf\Color;
 final readonly class Branding {
 
 	/**
+	 * Define a visual identity.
+	 *
 	 * @since 1.0.0
 	 *
-	 * @param string      $name       Trading name, printed as the wordmark.
-	 * @param string      $tagline    Optional line under the name.
-	 * @param string      $accent     Brand colour as hex. Black by default:
-	 *                                a monochrome invoice is harder to date,
-	 *                                prints correctly on any device, stays
-	 *                                legible when photocopied or faxed to an
-	 *                                accounts department, and never clashes
-	 *                                with whatever the recipient's own
-	 *                                paperwork looks like.
-	 * @param string|null $logo_path  SVG `d` attribute for a vector mark.
-	 * @param float       $logo_box   viewBox height of that path.
-	 * @param string[]    $address    Your address, one line per element.
-	 * @param string[]    $footnotes  Small print for the page foot.
+	 * @param string             $name      Trading name, printed as the wordmark.
+	 * @param string             $tagline   Optional line under the name.
+	 * @param string             $accent    Brand colour as hex. Black by default:
+	 *                                      a monochrome invoice is harder to date,
+	 *                                      prints correctly on any device, stays
+	 *                                      legible when photocopied or faxed to an
+	 *                                      accounts department, and never clashes
+	 *                                      with whatever the recipient's own
+	 *                                      paperwork looks like.
+	 * @param string|null        $logo_path SVG `d` attribute for a vector mark.
+	 * @param float              $logo_box  viewBox height of that path.
+	 * @param array<int, string> $address   Your address, one line per element.
+	 * @param array<int, string> $footnotes Small print for the page foot.
 	 */
 	public function __construct(
 		public string $name,

@@ -25,10 +25,25 @@ namespace SugarCommerce\TextPdf;
  */
 enum PageSize: string {
 
-	case A4     = 'A4';
-	case A5     = 'A5';
+	/**
+	 * ISO A4, 210 × 297 mm. The default.
+	 */
+	case A4 = 'A4';
+
+	/**
+	 * ISO A5, 148 × 210 mm. Suits a short receipt.
+	 */
+	case A5 = 'A5';
+
+	/**
+	 * US Letter, 8.5 × 11 in.
+	 */
 	case Letter = 'Letter';
-	case Legal  = 'Legal';
+
+	/**
+	 * US Legal, 8.5 × 14 in.
+	 */
+	case Legal = 'Legal';
 
 	/**
 	 * Width and height in points, portrait.
